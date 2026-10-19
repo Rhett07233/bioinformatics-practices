@@ -1,7 +1,10 @@
 # DNA 重测序变异检测流程
 
 我从 ENA 下载原始测序数据，独立走完
-**质控 → 比对 → 排序去重 → 变异检测 → 过滤 → 注释** 全流程。
+**质控 → 比对 → 排序去重 → 变异检测 → 过滤** 全流程。
+
+> SnpEff 的变异注释脚本已写好（步骤 5），但**这一步没有实际运行**；
+> 第 9 节的组装与基因内容注释是另一条独立的分析路径。
 
 和另一个 RNA-seq 项目（暂未纳入本仓库）互补：
 那条线练的是表达量分析，这条线练的是 **BWA + samtools + bcftools** 这套 DNA 变异检测工具链。
@@ -87,8 +90,8 @@ conda activate dna
 | 2 质控 | fastp + FastQC + MultiQC | `qc/multiqc/multiqc_report.html` |
 | 3 比对去重 | **bwa mem** → samtools | `bam/<run>.markdup.bam` |
 | 4 变异检测 | bcftools mpileup/call/norm/filter | `vcf/<run>.filtered.vcf.gz` |
-| 5 注释（可选） | SnpEff | `vcf/<run>.ann.vcf` |
-| 6 参考筛选（诊断，可选） | bwa mem + samtools flagstat | `qc/refcheck/reference_screening.tsv` |
+| 5 注释（可选） | SnpEff | `vcf/<run>.ann.vcf`（**未随仓库提供，需自行运行**） |
+| 6 参考筛选（诊断，可选） | bwa mem + samtools flagstat | `qc/refcheck/reference_screening.tsv`（**未随仓库提供，需自行运行**） |
 | 7 汇总图（可选） | matplotlib | `qc/summary/<run>.summary.png` |
 | 8 基因内容（附加） | SPAdes + abricate | `results/gene_content/summary.tsv` |
 
@@ -150,7 +153,7 @@ RNA-seq 的重复主要来自高表达基因，是真实信号，去重反而有
 ├── scripts/         lib.sh + 01~08 + run_all.sh
 ├── fastq/ clean/ bam/ ref/     中间文件（.gitignore 已排除）
 ├── assembly/        SPAdes 组装结果（.gitignore 已排除）
-├── qc/              MultiQC 报告 + summary/（汇总图）+ refcheck/（参考筛选结果）
+├── qc/              MultiQC 报告 + summary/（汇总图）+ refcheck/（参考筛选，需自行运行）
 ├── results/gene_content/  毒力 / 耐药 / 质粒注释表（入库）
 └── vcf/             raw / norm / filtered VCF + stats
 ```
