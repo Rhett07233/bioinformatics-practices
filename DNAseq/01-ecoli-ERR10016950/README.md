@@ -525,7 +525,10 @@ CONFIG=config/ecoli.env bash scripts/08_gene_content.sh
 是**一个完整的第二基因组**。把 contigs 比回 K-12 也印证了这一点：
 4421 条里有 356 条比对不上，与高 GC 组的 332 条基本吻合。
 
-因此按覆盖度 ≥4× 过滤（脚本里的 `MIN_COV`，默认 4）：
+因此按覆盖度 ≥4× 过滤（脚本里的 `MIN_COV`，默认 4）。**4 这个值不是随手定的**：
+2–4× 组的 GC 是 57.3%（克雷伯菌），4–8× 组掉到 52.3%（E. coli 量级），4× 正好是跳变点。
+取 3 会让高 GC 序列从 1.13 Mb 涨到 4.62 Mb（接近翻倍）；取 5 只再删 0.36 Mb，
+其中约 0.12 Mb 是 E. coli 量级、0.24 Mb 仍是高 GC——所以没有取 5。
 
 | | contig 数 | 总长 | 加权 GC |
 |---|---|---|---|
@@ -573,7 +576,7 @@ CONFIG=config/ecoli.env bash scripts/08_gene_content.sh
 > **上面的归属判断是启发式的，不是分类学鉴定。** 做法是：从 abricate 输出里取基因所在的
 > contig 名，再回查该 contig 的 GC 与覆盖度（从 header 解析），据此人工判归。
 > 这只能说明某条 contig "更像谁"，不能证明它是谁 —— E. coli 的 accessory 区本身也可能 GC 异常，
-> 而"E. coli 组"里就残留着 0.67 Mb 的 GC≥54% 序列。
+> 而"E. coli 组"里就残留着 1.13 Mb 的 GC≥54% 序列（52× 这套过滤后的统计；115× 那套是 0.67 Mb）。
 >
 > 严格做法是对每条 contig 做物种分类（`kraken2 --confidence` 或 BLAST），再让基因继承
 > 所在 contig 的标签。**本次没有做** —— kraken2 标准库需 8 GB 以上，当时只对
