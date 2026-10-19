@@ -3,7 +3,7 @@
 *End-to-end bioinformatics pipelines built from public raw data — fully scripted, reproducible, and reconciled against reference results.*
 
 这是我在学习生物信息学分析过程中完成的两个端到端练习。每个练习都从**公开原始数据**出发，
-我自己写脚本走完完整分析链，并对结果做了逐项核对——不只是"跑出图了"。
+我自己写脚本并用ai辅助检查走完完整分析链，并对结果做了逐项核对——不只是"跑出图了"。
 全部脚本都能在笔记本上重跑，不依赖服务器。
 
 **技术栈**：BWA · samtools · bcftools · SnpEff · Seurat (R) · Scanpy (Python) · conda · bash / WSL
@@ -17,7 +17,7 @@ Two self-contained exercises, each a numbered script chain plus a one-command `r
   2,700 → 2,638 cells, 13,714 genes, 9 clusters, identical median QC metrics on both sides.
 - **DNA-seq variant calling** (`DNAseq/01-ecoli-ERR10016950/`) —
   FASTQ → fastp/FastQC/MultiQC → BWA-MEM → samtools fixmate/markdup → bcftools → filtered VCF.
-  Real *E. coli* WGS, ~245×, 20–30 min on a laptop. Ships a documented debugging log
+  Real *E. coli* WGS, ~123×, 20–30 min on a laptop. Ships a documented debugging log
   (a ploidy-parameter bug and a tool-version breakage, both fixed).
 
 Design: configuration-driven, scripts locate themselves (`cd "$(dirname "$0")/.."`),
@@ -40,7 +40,7 @@ raw data and intermediate files excluded via `.gitignore` and re-downloaded on d
 | 编号 | 练习 | 方向 | 工具链 | 数据 | 耗时 |
 |---|---|---|---|---|---|
 | S01 | [pbmc3k](scRNAseq/01-pbmc3k/README.md) | 单细胞转录组 | Seurat (R) · Scanpy (Python) | 10x PBMC 3k，2700 细胞 | 5–15 分钟 |
-| D01 | [ecoli-ERR10016950](DNAseq/01-ecoli-ERR10016950/README.md) | 重测序变异检测 | BWA · samtools · bcftools · SnpEff | EAEC 临床分离株 WGS，298 万 pairs，245× | 20–30 分钟 |
+| D01 | [ecoli-ERR10016950](DNAseq/01-ecoli-ERR10016950/README.md) | 重测序变异检测 | BWA · samtools · bcftools · SnpEff | 临床分离株 WGS，189 万 pairs，123× | 20–30 分钟 |
 
 > 另一个 bulk RNA-seq 项目（表达定量）暂未纳入本仓库。
 
