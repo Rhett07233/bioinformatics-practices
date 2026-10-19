@@ -41,7 +41,7 @@ raw data and intermediate files excluded via `.gitignore` and re-downloaded on d
 | 编号 | 练习 | 方向 | 工具链 | 数据 | 耗时 |
 |---|---|---|---|---|---|
 | S01 | [pbmc3k](scRNAseq/01-pbmc3k/README.md) | 单细胞转录组 | Seurat (R) · Scanpy (Python) | 10x PBMC 3k，2700 细胞 | 5–15 分钟 |
-| D01 | [ecoli-ERR10016950](DNAseq/01-ecoli-ERR10016950/README.md) | 重测序变异检测 | BWA · samtools · bcftools（SnpEff 未运行） | 临床分离株 WGS，189 万 pairs，123× | 20–30 分钟 |
+| D01 | [ecoli-ERR10016950](DNAseq/01-ecoli-ERR10016950/README.md) | 重测序变异检测 | BWA · samtools · bcftools | 临床分离株 WGS，189 万 pairs，123× | 20–30 分钟 |
 
 > 另一个 bulk RNA-seq 项目（表达定量）暂未纳入本仓库。
 
