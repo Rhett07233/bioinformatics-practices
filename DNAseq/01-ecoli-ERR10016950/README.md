@@ -164,8 +164,14 @@ RNA-seq 的重复主要来自高表达基因，是真实信号，去重反而有
 > **生成汇总图**（只读已有结果，不重跑流程）：
 >
 > ```bash
-> conda activate scanpy          # 该环境自带 matplotlib
+> conda activate dna             # 本环境的 matplotlib 需先装上（见下）
 > python scripts/07_summary_plot.py
+> ```
+>
+> 如果报 `ModuleNotFoundError: matplotlib`，说明环境是在加这条依赖之前建的，补装即可：
+>
+> ```bash
+> conda env update -f envs/dna.yaml
 > ```
 >
 > 输出 `qc/summary/<run>.summary.png`：reads 过滤前后、比对率、变异数、Q30 四联图。

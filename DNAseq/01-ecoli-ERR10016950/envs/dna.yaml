@@ -23,3 +23,6 @@ dependencies:
   # 参考里不存在，靠比对 + SNP 拿不到；要回答"为什么致病"必须先组装再做基因注释。
   - spades
   - abricate
+  # --- 汇总图（步骤 07 使用）---
+  # 把 matplotlib 放进本环境，07_summary_plot.py 就不必借用单细胞那边的 scanpy 环境。
+  - matplotlib

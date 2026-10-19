@@ -10,8 +10,11 @@
     qc/summary/<run>.summary.png
 
 用法（在项目根目录）：
-    conda activate scanpy          # 该环境自带 matplotlib
+    conda activate dna
     python scripts/07_summary_plot.py
+
+依赖：matplotlib（已包含在 envs/dna.yaml 中；老环境执行
+      `conda env update -f envs/dna.yaml` 补装）。
 
     # 指定 run（默认取 qc/fastp/ 下第一个 json 对应的名字）
     RUN=ERR10016950 python scripts/07_summary_plot.py
