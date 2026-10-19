@@ -584,8 +584,9 @@ CONFIG=config/ecoli.env TAG=_full SUB_PAIRS=1900000 MIN_COV=12 \
   bash scripts/08_gene_content.sh
 ```
 
-`TAG=_full` 让结果写到 `assembly_full/` 和 `results/gene_content_full/`，与主结果并存
-（这两个目录**不入库**，`.gitignore` 已按 `assembly*/` 排除）。
+`TAG=_full` 让结果写到 `assembly_full/` 和 `results/gene_content_full/`，与主结果并存。
+其中 `assembly_full/` 是中间产物（`.gitignore` 按 `assembly*/` 排除）；
+`results/gene_content_full/` 的 5 张表**已入库**（共 60 KB），方便对照复跑结果。
 
 **结果对比**
 
