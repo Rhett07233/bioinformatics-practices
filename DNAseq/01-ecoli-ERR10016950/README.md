@@ -321,7 +321,7 @@ Ti/Tv 的常用预期区间（约 2.0–2.1）是针对**"与参考高度一致�
 
 > 第 9 节组装后发现，约一半的序列来自另一个 GC 57.3% 的物种。
 > 因此那 21% 未比对的 reads 是「菌株特有序列 + 混入的 *K. pneumoniae*」之和，
-> 并非单纯由 accessory genome 造成。详见 [9.2 节](#92-先做样本纯度核查不能省)。
+> 并非单纯由 accessory genome 造成。详见 [9.2 节](#92-组装后的意外发现样本不纯)。
 
 ### 8.6 数据溯源核查
 
@@ -384,9 +384,9 @@ CONFIG=config/ecoli.env bash scripts/08_gene_content.sh
 `results/gene_content/{vfdb,card,resfinder,plasmidfinder}.tsv`，以及汇总表
 `results/gene_content/summary.tsv`（覆盖度 ≥80% 且一致性 ≥90%）。
 
-### 9.2 先做样本纯度核查（不能省）
+### 9.2 组装后的意外发现：样本不纯
 
-组装后按 contig header 里的覆盖度做直方图，出现了**两个清晰的峰**：
+我对组装结果按 contig 覆盖度做了直方图，看到**两个清晰的峰**：
 
 | 覆盖度 | contig 数 | 总长 | 加权 GC |
 |---|---|---|---|
@@ -424,7 +424,7 @@ CONFIG=config/ecoli.env bash scripts/08_gene_content.sh
 | `sul2`、`strA/B`、`dfrA14` | 磺胺、氨基糖苷、甲氧苄啶 | `NODE_440` | 54.5% / 10.8× |
 | `sul1`、`aadA1`、`dfrA1` | 磺胺、氨基糖苷、甲氧苄啶 | `NODE_103` | **58.4% / 4.4×** |
 
-**不能直接写成「该 E. coli 是 MDR」**，原因有三：
+**我没有直接写成「该 E. coli 是 MDR」**，原因有三：
 
 - 这些基因分散在多个 5–20 kb 的短 contig 上，contig 之间没有重叠，
   **无法证明它们与质粒复制子共定位**——复制子分别落在 `NODE_262` / `NODE_401` / `NODE_393` 等另外几条 contig 上。
@@ -457,7 +457,7 @@ CONFIG=config/ecoli.env bash scripts/08_gene_content.sh
 研究层面的 "enteroaggregative" 标签对这个 isolate 不成立，
 或者相关基因位于未能组装出来的质粒区域。
 
-> 注意：这里只讨论**毒力基因**。耐药基因的归属见 9.3——其中一部分可能来自混入物种，
+> 这里只讨论**毒力基因**。耐药基因的归属见 9.3——其中一部分可能来自混入物种，
 > 不能整体归给这株 E. coli。
 
 ### 9.5 这一节的局限

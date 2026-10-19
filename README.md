@@ -104,6 +104,14 @@ CONFIG=config/ecoli.env bash scripts/run_all.sh    # 20–30 分钟
 
 各练习的详细依赖、参数说明和结果解读，见其自身 README。
 
+## 关于本仓库的编写过程
+
+这两个练习在**环境搭建、脚本调试、结果解读和文档整理**的过程中，使用了 **DeepSeek Harness**
+（AI 编码助手）协助。它实际参与的部分包括：排查 `bcftools --ploidy` 缺省值导致的假阳性、
+定位 abricate 输出列随版本变更的问题、以及识别组装结果里混入的另一株菌。
+
+数据来源、分析路线和最终结论由我确认；README 中的每个数字都能从仓库内的脚本和结果表复现。
+
 ## License
 
 MIT — 见 [LICENSE](LICENSE)。
