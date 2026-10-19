@@ -283,44 +283,47 @@ R 侧版本（R / Seurat / SeuratObject）由 `05_verify.R` 末尾自动打印�
 
 ```
 01-pbmc3k/
-├── README.md                      # 本文件
-├── .gitignore                     # 排除 data/、*.rds、*.h5ad
+├── README.md
+├── .gitignore
 ├── envs/
-│   ├── scrna.yaml                 # R + Seurat 环境
-│   └── scanpy.yaml                # Python + Scanpy 环境
+│   ├── scrna.yaml                 # R + Seurat
+│   └── scanpy.yaml                # Python + Scanpy
 ├── scripts/
-│   ├── 01_download.sh             # 下载 10x count matrix（两边共用）
-│   ├── 02_qc.R         02_qc.py           # 质控与过滤
-│   ├── 03_cluster.R    03_cluster.py      # 降维与聚类
-│   ├── 04_markers.R    04_markers.py      # marker 与细胞类型注释
-│   ├── 05_verify.R     05_verify.py       # 对账（教程 + 另一语言版）
-│   ├── run_all.sh                 # 一键跑完（R）
-│   └── run_all_py.sh              # 一键跑完（Python）
-├── data/                          # 下载的数据（.gitignore 排除）
+│   ├── 01_download.sh             # 下载 count matrix（两套共用）
+│   ├── 02_qc.R         02_qc.py
+│   ├── 03_cluster.R    03_cluster.py
+│   ├── 04_markers.R    04_markers.py
+│   ├── 05_verify.R     05_verify.py
+│   ├── run_all.sh
+│   └── run_all_py.sh
+├── data/                          # 下载的数据（未入库）
 └── results/
-    ├── R/                         # Seurat 的全部产出
-    │   ├── *.csv                  # QC 汇总、cluster 大小、marker 表、对账表
-    │   ├── *.rds                  # Seurat 对象（.gitignore 排除，体积大）
-    │   └── figures/               # 全部结果图（★ 这些要提交）
-    └── python/                    # Scanpy 的全部产出（与 R 侧一一对应）
+    ├── R/                         # Seurat 的产出
+    │   ├── *.csv
+    │   ├── *.rds                  # Seurat 对象（未入库，体积大）
+    │   └── figures/
+    └── python/                    # Scanpy 的产出
         ├── *.csv
-        ├── *.h5ad                 # AnnData 对象（.gitignore 排除）
+        ├── *.h5ad                 # AnnData 对象（未入库）
         └── figures/
 ```
 
-**同名同号的 `.R` 和 `.py` 是同一件事的两种实现**——这份对称本身就是文档：
-读代码的人一眼能看出哪一步对应哪一步。唯一例外是 QC 阶段的图：
+我刻意让 `.R` 和 `.py` **同号对应**——同一个编号就是同一件事的两种实现，
+翻到任一侧都能马上找到对照的那一份。唯一没对齐的是 QC 阶段的图：
 R 侧把两张散点图合成一张（`02_qc_scatter.png`），Python 侧分开输出（`02a` / `02b` / `02c`）。
 
-**提交到 GitHub 时应包含**：`scripts/`、`envs/`、`README.md`、`.gitignore`，
+**我入库的东西**：`scripts/`、`envs/`、`README.md`、`.gitignore`，
 以及 `results/*/*.csv` 和 `results/*/figures/*.png`。
 
-> ⚠️ `results/*/*.csv` 里**不含跨语言对比表**——那份对比只在运行时打印、不落盘（见 4.2）。
-> 仓库里的 `verify_vs_tutorial.csv` 是各自与教程的对账表。
+**我没入库的东西**：
 
-**不入库**：`data/`、`results/R/*.rds`、`results/python/*.h5ad`（对象文件动辄几百 MB），
-以及 `results/python/cluster_markers_all.csv`（未过滤的全量 marker 表，约 11 MB；
-交付物是过滤后的 `cluster_markers.csv`）。
+| 内容 | 原因 |
+|---|---|
+| `data/` | 下载的原始矩阵，跑 `01_download.sh` 就能重新拿到 |
+| `results/*/*.rds`、`*.h5ad` | 序列化后的对象，单个 60–270 MB，不适合进 git |
+| `results/python/cluster_markers_all.csv` | 未过滤的全量 marker 表，约 11 MB；我留的是过滤后的 `cluster_markers.csv` |
+
+> 跨语言对比表也不在其中——它只在运行时打印、没有落盘（见 4.2）。
 
 ---
 
