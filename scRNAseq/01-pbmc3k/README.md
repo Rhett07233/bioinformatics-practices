@@ -64,15 +64,6 @@ conda activate scanpy
 `envs/scrna.yaml` 从 conda-forge 装**预编译**的 Seurat，不用本地编译，
 比 `install.packages("Seurat")` 快得多（后者在 Linux 上要编译几十个依赖，动辄一小时）。
 
-> **版本说明**：conda-forge 上的 Seurat 通常比 CRAN 落后一些版本（官方教程用的是 5.5.0）。
-> 对结果没有影响——实际运行确认，conda-forge 版本在 PBMC 3k 上的对账结果与官方教程一致
-> （细胞数、基因数、cluster 数全部对上）。换更新的 Seurat 的做法是：只装 `r-base`，
-> 再用 Posit 的 Linux 二进制仓库装 R 包。
->
-> ⚠️ **两个 yaml 都没有固定版本号**（如 `scanpy`、`r-seurat` 只写包名，Python 是 `>=3.10`）。
-> 所以**照这两份 yaml 装出来的版本，和本文档记录的实测版本可能不同**（第 4.1 节列的是
-> 我这次运行的实际环境，仅作参照）。若对账结果出现偏差，第一件事是核对版本。
-
 **资源预算**
 
 | 项目 | 需求 |
@@ -202,7 +193,7 @@ Python 版用 Leiden 拿到 8，两者都在预期范围内。
 | anndata | 0.13.4 |
 
 > **这是本机那次运行的实际版本**，而 `envs/scanpy.yaml` **没有固定版本号**，
-> 所以别人装出来的版本大概率不同（见第 2 节的版本提示）。
+> 所以别人装出来的版本大概率不同。
 
 R 侧版本（R / Seurat / SeuratObject）由 `05_verify.R` 末尾自动打印。
 **本次运行没有留存那份输出**，因此这里不给具体数字——重跑一次 `05_verify.R` 即可看到。
@@ -276,6 +267,32 @@ R 侧版本（R / Seurat / SeuratObject）由 `05_verify.R` 末尾自动打印�
 > **这张表只对应 R/Seurat 的编号。** Python 版用 Leiden 得到 8 个 cluster，
 > 编号与 R 侧**不直接对应**；Python 侧的细胞类型判断依赖 4.3 的 marker 检查，
 > 而不是这张表的编号。
+
+### 4.5 两套实现的 cluster 怎么对应
+
+编号几乎完全错位（R 的 g0 在 Python 里是 c1，R 的 g2 是 c0），所以按编号对比没有意义。
+我按各细胞类型的代表 marker，在 canonical marker 平均表达里取峰值簇来对齐：
+
+| 细胞类型 | 代表 marker | R / Seurat | Python / Scanpy |
+|---|---|---|---|
+| Naive CD4+ T | CCR7 | g0（684） | c1（515） |
+| Memory CD4+ T | IL7R | g2（476） | c0（674） |
+| CD14+ Mono | CD14 | g1（481） | c2（427） |
+| FCGR3A+ Mono | FCGR3A | g5（162） | c5（213） |
+| B | MS4A1 | g3（344） | c4（344） |
+| CD8+ T | CD8A | g4（291） | c3（418） |
+| NK | GNLY | g6（155） | ↑ 并入 c3 |
+| DC | FCER1A | g7（32） | c6（34） |
+| Platelet | PPBP | g8（13） | c7（13） |
+| **合计** | | **2,638** | **2,638** |
+
+几点说明：
+
+- **这个对齐是我做的**，不是 `05_verify.py` 的输出——它只比总数和 marker 找回情况
+- B（344 / 344）和 Platelet（13 / 13）两边细胞数完全相同，是最干净的两个簇
+- **CD8+ T 与 NK 在 Python 里被并成一簇**（c3 = 418，约等于 291 + 155），
+  这就是 9 与 8 的唯一实质差别，不是哪边算错了
+- 两个 CD4 亚群在两边切得不一样：R 的 Naive 偏多（684 vs 515）、Memory 偏少（476 vs 674）
 
 ---
 
@@ -424,12 +441,3 @@ R 按 `avg_log2FC` 排序，Python 按 wilcoxon 的 `scores` 排序，各自的 
 R 的 `AverageExpression()` 返回非对数尺度（LYZ ≈ 183），Python 脚本平均的是 log 值（LYZ ≈ 5.1）。
 **这两张表不能直接比数值**，只能比"哪个簇最高"。
 这是我事后才发现的，文档里一直没写 —— 补在这里。
-
-### 10.3 如果重做
-
-1. **把跨语言对比落盘成 CSV**——现在只打在屏幕上，别人没法核对（见 4.2）
-2. **给两个 yaml 固定版本号**——否则"对账一致"这个结论随时可能因版本漂移失效
-3. **统一平均表达的尺度**（两边都 expm1 或都 log），让 canonical marker 表可以直接比
-4. **补双细胞检测**（DoubletFinder / scDblFinder）——这次没做，2,638 个细胞里可能混有 doublet
-
-最想改的是第 1 条：一个"我在做对账"的项目，却把对账结果留在屏幕上没存下来，有点自相矛盾。
