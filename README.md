@@ -6,7 +6,7 @@
 我自己写脚本并用ai辅助检查走完完整分析链，并对结果做了逐项核对——不只是"跑出图了"。
 全部脚本都能在笔记本上重跑，不依赖服务器。
 
-**技术栈**：BWA · samtools · bcftools · SnpEff（可选，本次未运行）· Seurat (R) · Scanpy (Python) · conda · bash / WSL
+**技术栈**：BWA · samtools · bcftools · Seurat (R) · Scanpy (Python) · conda · bash / WSL
 
 ## English Summary
 
