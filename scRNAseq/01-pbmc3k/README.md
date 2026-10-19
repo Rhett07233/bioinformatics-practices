@@ -66,12 +66,12 @@ conda activate scanpy
 
 > **版本说明**：conda-forge 上的 Seurat 通常比 CRAN 落后一些版本（官方教程用的是 5.5.0）。
 > 对结果没有影响——实际运行确认，conda-forge 版本在 PBMC 3k 上的对账结果与官方教程一致
-> （细胞数、基因数、cluster 数全部对上）。想要更新版本可以只装 `r-base`，
+> （细胞数、基因数、cluster 数全部对上）。换更新的 Seurat 的做法是：只装 `r-base`，
 > 再用 Posit 的 Linux 二进制仓库装 R 包。
 >
 > ⚠️ **两个 yaml 都没有固定版本号**（如 `scanpy`、`r-seurat` 只写包名，Python 是 `>=3.10`）。
-> 这意味着**你装出来的版本可能和本文档记录的实测版本不同**。第 4.1 节的版本号是
-> 本次运行的实际环境，仅作参照；如果对账结果出现偏差，先核对版本。
+> 所以**照这两份 yaml 装出来的版本，和本文档记录的实测版本可能不同**（第 4.1 节列的是
+> 我这次运行的实际环境，仅作参照）。若对账结果出现偏差，第一件事是核对版本。
 
 **资源预算**
 
@@ -224,15 +224,15 @@ R 侧版本（R / Seurat / SeuratObject）由 `05_verify.R` 末尾自动打印�
 | cluster 数差 1–2 个 | Seurat 默认 **Louvain**，Scanpy 默认 **Leiden**；邻居数默认值也不同（20 vs 15） |
 | marker 排序不同 | Wilcoxon 检验的实现与近似方式不同 |
 
-> **注意**：`03_cluster.py` 把 `n_neighbors` 显式设成 20，是为了对齐 Seurat 的 `k.param=20`；
-> 但聚类算法（Louvain vs Leiden）**刻意保持各自默认**——这不是没对齐，是不该硬凑。
+> **一个刻意的选择**：`03_cluster.py` 把 `n_neighbors` 显式设成 20，是为了对齐 Seurat 的 `k.param=20`；
+> 但聚类算法（Louvain vs Leiden）**保持各自默认**——这不是没对齐，是不该硬凑。
 > 两种算法本就给出不同粒度的社区，强行调到数字一致反而掩盖了真实差异。
 > 这也是"两套结果为什么不一样"的正确解释方式。
 
 > **这份对比是运行时打印的，没有落盘**：`05_verify.py` 会读取 `results/R/qc_summary.csv`
 > 与 `cluster_sizes.csv`，在屏幕上逐项列出两边的数值和是否一致。
 > 仓库里保留的 `verify_vs_tutorial.csv` 是**各自与教程**的对账表。
-> 想看跨语言对比，需要先跑 R 版、再跑 `python scripts/05_verify.py`。
+> 要看跨语言对比，得等 R 版跑完，再执行 `python scripts/05_verify.py` 才会触发。
 
 ### 4.3 生物学对账（更重要）
 
@@ -269,7 +269,7 @@ R 侧版本（R / Seurat / SeuratObject）由 `05_verify.R` 末尾自动打印�
 | 7 | FCER1A, CST3 | DC |
 | 8 | PPBP | Platelet |
 
-**注意**：cluster 编号不是稳定契约。换了分辨率、换了 Seurat 版本，编号可能整体错位。
+**cluster 编号不是稳定契约。** 换了分辨率、换了 Seurat 版本，编号可能整体错位。
 所以 `04_markers.R` 里先检查 cluster 数是否等于 9，不等于 9 就只打印提示、不硬套注释——
 这样比"强行套上去然后结论全错"要好。
 
@@ -364,13 +364,13 @@ R 侧把两张散点图合成一张（`02_qc_scatter.png`），Python 侧分开�
 判断对错要看：cluster 数是否接近 9、每个 cluster 的 top marker 是不是教程表里对应的基因。
 
 **Q：cluster 数不是 9 怎么办？**
-先跑 `05_verify.R` / `05_verify.py` 看 marker 找回情况。如果 marker 都能找回，说明流程是通的，
-差异来自版本或参数（Python 版用 Leiden，**实测为 8 个**）。想调数量就改 `RES`：
+做法是先跑 `05_verify.R` / `05_verify.py` 看 marker 找回情况。如果 marker 都能找回，说明流程是通的，
+差异来自版本或参数（Python 版用 Leiden，**实测为 8 个**）。调数量的入口是环境变量 `RES`：
 `RES=0.6 Rscript scripts/03_cluster.R` 或 `RES=0.6 python scripts/03_cluster.py`。
 
 **Q：`FindAllMarkers` 很慢？**
 它默认对每个 cluster 做一次全基因组的 Wilcoxon 检验。2700 个细胞通常 1–5 分钟。
-细胞数上万时可以装 `presto` 包，Seurat 会自动调用它，速度快一个数量级。
+细胞数上万时通常改用 `presto`，Seurat 会自动调用它，速度快一个数量级。
 
 **Q：怎么改分辨率或 PC 数？**
 `NPCS=15 RES=0.8 Rscript scripts/03_cluster.R`，两个参数都是从环境变量读的。

@@ -93,8 +93,8 @@ conda activate dna
 | 2 质控 | fastp + FastQC + MultiQC | `qc/multiqc/multiqc_report.html` |
 | 3 比对去重 | **bwa mem** → samtools | `bam/<run>.markdup.bam` |
 | 4 变异检测 | bcftools mpileup/call/norm/filter | `vcf/<run>.filtered.vcf.gz` |
-| 5 注释（可选） | SnpEff | `vcf/<run>.ann.vcf`（**未随仓库提供，需自行运行**） |
-| 6 参考筛选（诊断，可选） | bwa mem + samtools flagstat | `qc/refcheck/reference_screening.tsv`（**未随仓库提供，需自行运行**） |
+| 5 注释（可选） | SnpEff | `vcf/<run>.ann.vcf`（**我未运行，故未随仓库提供**） |
+| 6 参考筛选（诊断，可选） | bwa mem + samtools flagstat | `qc/refcheck/reference_screening.tsv`（**我未运行，故未随仓库提供**） |
 | 7 汇总图（可选） | matplotlib | `qc/summary/<run>.summary.png` |
 | 8 基因内容（附加） | SPAdes + abricate | `results/gene_content/summary.tsv` |
 
@@ -139,7 +139,7 @@ RNA-seq 的重复主要来自高表达基因，是真实信号，去重反而有
 | 比对率（flagstat `mapped`） | 同种参考通常 >95%；本数据集实测 **78.57%**，原因见第 8.5 节 |
 | 重复率（markdup 报告） | 一般 5%–20%；本数据集实测 **5.7%** |
 | 变异数量 | 与 MG1655 参考不同的分离株会有几千到几万个变异，属正常；本数据集实测 **21,137 SNP + 251 indel** |
-| Ti/Tv | 细菌无公认基准，**不建议作为判断依据**（见第 8.5 节） |
+| Ti/Tv | 细菌无公认基准，**本文档不拿它当判断依据**（见第 8.5 节） |
 
 `04_call.sh` 跑完会把 SNP 数、indel 数、Ti/Tv 直接打在屏幕上；本项目把这些数字连同运行环境与参数一并记录，便于复现和横向对比。
 
@@ -156,7 +156,7 @@ RNA-seq 的重复主要来自高表达基因，是真实信号，去重反而有
 ├── scripts/         lib.sh + 01~08 + run_all.sh
 ├── fastq/ clean/ bam/ ref/     中间文件（.gitignore 已排除）
 ├── assembly/        SPAdes 组装结果（.gitignore 已排除）
-├── qc/              MultiQC 报告 + summary/（汇总图）+ refcheck/（参考筛选，需自行运行）
+├── qc/              MultiQC 报告 + summary/（汇总图）+ refcheck/（参考筛选，我未运行）
 ├── results/gene_content/  毒力 / 耐药 / 质粒注释表（入库）
 └── vcf/             raw / norm / filtered VCF + stats
 ```
@@ -350,8 +350,9 @@ BLAST 一致性 99.96%），这个判据不再成立：理论上限变成 **约 
 
 > 另外，16–20% 本身是从 GC 与覆盖度分箱估出来的，残差区间也继承了这个不确定性。
 
-> 本仓库**未附该验证的结果表**（脚本需从 NCBI 下载约 9 MB 参考基因组，
-> 国内网络条件下可能较慢）。上面的结论是**基于元数据的推断**，脚本保留在仓库里，可自行实测。
+> 本仓库**未附该验证的结果表**（脚本要从 NCBI 下载约 9 MB 参考基因组，
+> 国内网络条件下可能较慢，**这次我没有跑**）。上面的结论是**基于元数据的推断**，
+> 脚本保留在仓库里。
 
 **② Ti/Tv = 2.51 —— 这个指标在本场景下本来就不该当 QC 用**
 
