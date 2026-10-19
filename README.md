@@ -94,13 +94,24 @@ raw data and intermediate files excluded via `.gitignore` and re-downloaded on d
 工具链在 Linux 下运行（WSL 的 Ubuntu 即可）：
 
 ```bash
+# ---------- scRNAseq（Python / Scanpy 版）----------
 cd scRNAseq/01-pbmc3k
-conda env create -f envs/scanpy.yaml               # 一次性
-bash scripts/run_all_py.sh                         # 5–15 分钟
+conda env create -f envs/scanpy.yaml    # 一次性，已创建过可跳过
+conda activate scanpy
+bash scripts/run_all_py.sh              # 5–15 分钟
 
+# ---------- DNAseq ----------
 cd ../../DNAseq/01-ecoli-ERR10016950
-CONFIG=config/ecoli.env bash scripts/run_all.sh    # 20–30 分钟
+conda env create -f envs/dna.yaml       # 一次性，已创建过可跳过
+conda activate dna                      # 切到 DNA 环境
+CONFIG=config/ecoli.env bash scripts/run_all.sh   # 20–30 分钟
 ```
+
+> scRNAseq 还有一套独立的 **R / Seurat** 实现：`conda env create -f envs/scrna.yaml` →
+> `conda activate scrna` → `bash scripts/run_all.sh`。上面展示的是 Python 版。
+>
+> 注意 `conda env create` **不会自动激活环境**，必须另外执行 `conda activate`，
+> 否则脚本会跑在 base 环境里、报找不到工具。
 
 各练习的详细依赖、参数说明和结果解读，见其自身 README。
 
