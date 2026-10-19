@@ -7,6 +7,7 @@ clean/
 fastq/
 ref/
 logs/
+assembly/
 
 # 数据类文件的兜底规则（压缩的测序数据、参考序列、比对文件）
 *.bam

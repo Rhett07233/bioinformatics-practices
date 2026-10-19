@@ -18,3 +18,8 @@ dependencies:
   # --- 变异检测 / 注释 ---
   - bcftools
   - snpeff
+  # --- 组装 / 基因内容注释（步骤 08 使用）---
+  # 本样本的致病性来自 accessory genome（毒力岛、pAA 质粒），这些序列在 K-12
+  # 参考里不存在，靠比对 + SNP 拿不到；要回答"为什么致病"必须先组装再做基因注释。
+  - spades
+  - abricate
