@@ -29,6 +29,9 @@ assembly/
 # 汇总报告 multiqc_report.html 是自包含的，这些原始表格没有单独保留的价值。
 qc/multiqc/multiqc_data/
 
+# 临时产物：为网页 BLAST 切出的小片段，用完即可删
+contaminant_5kb_for_blast.fasta
+
 # 保留并入库：
 #   README.md  scripts/  envs/  config/  samples/
 #   vcf/   —— VCF + 索引 + bcftools stats（约 2 MB）

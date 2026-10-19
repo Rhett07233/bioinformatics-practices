@@ -407,9 +407,11 @@ CONFIG=config/ecoli.env bash scripts/08_gene_content.sh
 | 保留（E. coli） | 3952 | 5.72 Mb | **51.0%** |
 | 丢弃（另一物种） | 469 | 5.11 Mb | **57.2%** |
 
-> 顺带一条线索：`plasmidfinder` 检出 `IncFIB(K)`、`card` 里有
-> `Klebsiella_pneumoniae_acrA` / `OmpK37` 等条目，与 GC 57.3% 一致，
-> 疑似 *Klebsiella pneumoniae*。但**没有用分类器确认**，这里只记为"另一物种"。
+> **物种已确认**：把最长的污染 contig（`NODE_1`，242 kb）切 5 kb 提交 NCBI BLAST，
+> 前 100 条命中**全部是 *Klebsiella pneumoniae***——一致性 **99.96%**、Query Cover **100%**、E 值 **0.0**。
+>
+> *K. pneumoniae* 基因组约 5.4 Mb、GC 57.5%，与上面测到的 4.6 Mb / 57.3% 吻合。
+> 之前几条旁证（`IncFIB(K)` 复制子、CARD 里的 `Klebsiella_pneumoniae_acrA` / `OmpK37`）由此闭环。
 
 ### 9.3 耐药基因：检出 MDR 相关基因，但归属存疑
 
@@ -422,16 +424,18 @@ CONFIG=config/ecoli.env bash scripts/08_gene_content.sh
 | `sul2`、`strA/B`、`dfrA14` | 磺胺、氨基糖苷、甲氧苄啶 | `NODE_440` | 54.5% / 10.8× |
 | `sul1`、`aadA1`、`dfrA1` | 磺胺、氨基糖苷、甲氧苄啶 | `NODE_103` | **58.4% / 4.4×** |
 
-**这里必须谨慎，不能直接写成「该 E. coli 是 MDR」：**
+**不能直接写成「该 E. coli 是 MDR」**，原因有三：
 
 - 这些基因分散在多个 5–20 kb 的短 contig 上，contig 之间没有重叠，
   **无法证明它们与质粒复制子共定位**——复制子分别落在 `NODE_262` / `NODE_401` / `NODE_393` 等另外几条 contig 上。
-- 携带 `sul1 + dfrA1 + aadA1` 的 `NODE_103`，**GC 58.4%、覆盖度仅 4.4×**，
-  与混入物种（GC 57.3%、2–4×）高度吻合，**它更可能属于混入的那株菌**。
-- 只有 `blaTEM-1B` 所在的 `NODE_336`（GC 50.2%、9.7×）与 *E. coli* 一致，归属相对可靠。
+- 携带 `sul1 + dfrA1 + aadA1`（class 1 整合子典型盒式）的 `NODE_103`，
+  **GC 58.4%、覆盖度仅 4.4×**，与已确认的 *K. pneumoniae*（GC 57.5%）高度吻合——
+  **这组基因基本可以判定属于克雷伯菌，而不是目标 E. coli**。
+- 只有 `blaTEM-1B` 所在的 `NODE_336`（GC 50.2%、覆盖度 9.7×）与 *E. coli* 一致，
+  归属相对可靠；`NODE_273`（55.0%）与 `NODE_440`（54.5%）处于两者之间，无法判归。
 
-结论：**检出多个获得性耐药基因属实；但哪些属于目标 E. coli、哪些属于混入物种，
-现有组装不足以区分。** 要定论需要对每条 contig 做物种分类（如 kraken2 / BLAST）。
+结论：**"样本中存在多种获得性耐药基因"属实；但属于 E. coli 的只有 `blaTEM-1B` 较为可靠，
+`NODE_103` 那一组应归给 *K. pneumoniae*。** 因此本文档**不对 E. coli 的耐药表型下结论**。
 
 ### 9.4 毒力谱：核心毒力因子，未见 EAEC 特征
 
