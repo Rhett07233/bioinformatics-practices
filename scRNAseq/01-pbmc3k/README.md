@@ -1,4 +1,4 @@
-# 单细胞 RNA-seq 分析（Seurat + Scanpy）—— PBMC 3k 入门练习
+# 单细胞 RNA-seq 分析（Seurat + Scanpy）—— PBMC 3k 入门练习（2026-08）
 
 我从 10x Genomics 的公开 count matrix 出发，用 **R/Seurat 和 Python/Scanpy 两套独立实现**，
 各自走完 **质控 → 归一化 → 降维 → 聚类 → marker 基因 → 细胞类型注释** 全流程，
@@ -27,7 +27,7 @@
 |---|---|
 | 来源 | 10x Genomics 公开数据集 |
 | 样本 | 外周血单个核细胞（PBMC），健康供体 |
-| 细胞数 | **2,700** 个单细胞 |
+| 细胞数 | **2,700** 个单细胞（QC 过滤后 **2,638**，见第 4.1 节） |
 | 测序平台 | Illumina NextSeq 500 |
 | 下载地址 | `https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz` |
 | 格式 | CellRanger 输出的 `matrix.mtx` + `barcodes.tsv` + `genes.tsv`（压缩包只有几 MB） |
@@ -68,6 +68,10 @@ conda activate scanpy
 > 对结果没有影响——实际运行确认，conda-forge 版本在 PBMC 3k 上的对账结果与官方教程一致
 > （细胞数、基因数、cluster 数全部对上）。想要更新版本可以只装 `r-base`，
 > 再用 Posit 的 Linux 二进制仓库装 R 包。
+>
+> ⚠️ **两个 yaml 都没有固定版本号**（如 `scanpy`、`r-seurat` 只写包名，Python 是 `>=3.10`）。
+> 这意味着**你装出来的版本可能和本文档记录的实测版本不同**。第 4.1 节的版本号是
+> 本次运行的实际环境，仅作参照；如果对账结果出现偏差，先核对版本。
 
 **资源预算**
 
@@ -101,6 +105,9 @@ bash scripts/run_all_py.sh
 ```
 
 ### 或者一步步来，每步都能单独看输出
+
+> 以下命令需先 `conda activate scrna`（R 部分）或 `conda activate scanpy`（Python 部分），
+> 否则 `Rscript` / `python` 找不到 Seurat / Scanpy。
 
 ```bash
 bash scripts/01_download.sh        # 下载并解压 10x count matrix（两边共用）
@@ -166,17 +173,25 @@ UMAP 只用来看"分不分得开"，不能用来说"A 比 B 更像 C"。
 
 ### 4.1 数值对账（对官方教程）
 
-期望值来自 Seurat 官方教程（2026-04-28 编译版，Seurat 5.5.0 / R 4.5.2）：
+期望值来自 Seurat 官方教程（2026-04-28 编译版，Seurat 5.5.0 / R 4.5.2）。
+**这一列只适用于 R 侧**——Python 版没有官方期望值，见下方说明。
 
-| 指标 | 期望值 | 本项目实测（R / Python） |
+| 指标 | 期望值（Seurat 教程） | 本项目实测（R / Python） |
 |---|---|---|
 | 建对象后细胞数 | 2,700 | 2,700 / 2,700 |
 | 建对象后基因数 | 13,714 | 13,714 / 13,714 |
 | QC 过滤后细胞数 | **2,638** | **2,638 / 2,638** ✅ |
+| 中位 nFeature_RNA（过滤后） | 教程未单列 | 819 / 819 ✅ |
+| 中位 nCount_RNA（过滤后） | 教程未单列 | 2,213 / 2,213 ✅ |
+| 中位 percent.mt（过滤后） | 教程未单列 | 2.01 / 2.01 ✅ |
 | cluster 数（`dims=1:10, resolution=0.5`） | **9** | **9**（Louvain）/ **8**（Leiden） |
+
+表中实测值都可以从仓库里核对：细胞数/基因数/中位值在 `results/*/qc_summary.csv`，
+cluster 数在 `results/*/cluster_sizes.csv`，两份文件可直接 `diff` 比对。
 
 细胞数和基因数**精确一致**；cluster 数允许差 ±1 —— R 版用 Louvain 拿到 9，
 Python 版用 Leiden 拿到 8，两者都在预期范围内。
+**Python 的 8 不是"没达到期望"**，而是 Leiden 的正常结果，详见 4.2。
 
 ### 实测环境
 
@@ -186,16 +201,21 @@ Python 版用 Leiden 拿到 8，两者都在预期范围内。
 | scanpy | 1.12.4 |
 | anndata | 0.13.4 |
 
+> **这是本机那次运行的实际版本**，而 `envs/scanpy.yaml` **没有固定版本号**，
+> 所以别人装出来的版本大概率不同（见第 2 节的版本提示）。
+
 R 侧版本（R / Seurat / SeuratObject）由 `05_verify.R` 末尾自动打印。
+**本次运行没有留存那份输出**，因此这里不给具体数字——重跑一次 `05_verify.R` 即可看到。
 
 ### 4.2 双语言交叉验证（Seurat vs Scanpy）
 
 这是这个项目最有价值的一步。R 版和 Python 版是**两套完全独立的实现**：
 不同语言、不同库、不同的默认参数。如果两边的细胞数、基因数、中位 QC 指标
-逐项对得上，就说明**读数据、算指标、过滤这三个环节的逻辑是对的**——
+逐项对得上（**cluster 数允许差 1–2 个**，原因见下），就说明**读数据、算指标、过滤这三个环节的逻辑是对的**——
 一个逻辑错误要在两套独立实现里同时出现，概率极低。
 
-对不上的地方反而更有价值，通常是这几类：
+> **本项目实测只出现了 cluster 数差 1 个**：细胞数 2,638 / 2,638、基因数 13,714 / 13,714、
+> 三个中位 QC 指标全部逐位相同。下表是**常见**差异的排查参考，不是本项目的实测差异。
 
 | 对不上的指标 | 常见原因 |
 |---|---|
@@ -221,6 +241,16 @@ R 侧版本（R / Seurat / SeuratObject）由 `05_verify.R` 末尾自动打印�
 脚本会检查 T 细胞（CD3D/CD3E/IL7R）、B 细胞（MS4A1/CD79A）、NK（NKG7/GNLY）、
 单核（LYZ/CD14）、血小板（PPBP）这些公认 marker 是否出现在 `cluster_markers.csv` 里。
 
+**实测结果：10 个 marker 全部找回，R 和 Python 两边完全一致**（`results/*/verify_marker_recovery.csv`）：
+
+| 细胞类型 | marker | R | Python |
+|---|---|---|---|
+| T 细胞 | CD3D, CD3E, IL7R | 3/3 | 3/3 |
+| B 细胞 | MS4A1, CD79A | 2/2 | 2/2 |
+| NK 细胞 | NKG7, GNLY | 2/2 | 2/2 |
+| 单核细胞 | LYZ, CD14 | 2/2 | 2/2 |
+| 血小板 | PPBP | 1/1 | 1/1 |
+
 **这一项不依赖 cluster 编号**——就算 cluster 0 和教程的 cluster 3 对应的是同一种细胞，
 它也照样通过。它证明的是：**流程捞回的是数据集里真实存在的生物学信号，
 而不是被参数选择决定的假象。**
@@ -242,6 +272,10 @@ R 侧版本（R / Seurat / SeuratObject）由 `05_verify.R` 末尾自动打印�
 **注意**：cluster 编号不是稳定契约。换了分辨率、换了 Seurat 版本，编号可能整体错位。
 所以 `04_markers.R` 里先检查 cluster 数是否等于 9，不等于 9 就只打印提示、不硬套注释——
 这样比"强行套上去然后结论全错"要好。
+
+> **这张表只对应 R/Seurat 的编号。** Python 版用 Leiden 得到 8 个 cluster，
+> 编号与 R 侧**不直接对应**；Python 侧的细胞类型判断依赖 4.3 的 marker 检查，
+> 而不是这张表的编号。
 
 ---
 
@@ -281,6 +315,9 @@ R 侧把两张散点图合成一张（`02_qc_scatter.png`），Python 侧分开�
 **提交到 GitHub 时应包含**：`scripts/`、`envs/`、`README.md`、`.gitignore`，
 以及 `results/*/*.csv` 和 `results/*/figures/*.png`。
 
+> ⚠️ `results/*/*.csv` 里**不含跨语言对比表**——那份对比只在运行时打印、不落盘（见 4.2）。
+> 仓库里的 `verify_vs_tutorial.csv` 是各自与教程的对账表。
+
 **不入库**：`data/`、`results/R/*.rds`、`results/python/*.h5ad`（对象文件动辄几百 MB），
 以及 `results/python/cluster_markers_all.csv`（未过滤的全量 marker 表，约 11 MB；
 交付物是过滤后的 `cluster_markers.csv`）。
@@ -291,7 +328,7 @@ R 侧把两张散点图合成一张（`02_qc_scatter.png`），Python 侧分开�
 
 | 阶段 | 耗时 | 说明 |
 |---|---|---|
-| 建 conda 环境 | 20–40 分钟 | 一次性；conda 解依赖最费时间 |
+| 建 conda 环境 | **20–40 分钟 / 每套** | 一次性；R 和 Python 两套都要建，**合计 40–80 分钟** |
 | 下载数据 | 几秒 | 压缩包只有几 MB |
 | 跑完整流程 | 5–15 分钟 | 主要耗时在 `FindAllMarkers` |
 | 对照官方教程核对结果 | 30 分钟 | 关键步骤 |
@@ -328,7 +365,7 @@ R 侧把两张散点图合成一张（`02_qc_scatter.png`），Python 侧分开�
 
 **Q：cluster 数不是 9 怎么办？**
 先跑 `05_verify.R` / `05_verify.py` 看 marker 找回情况。如果 marker 都能找回，说明流程是通的，
-差异来自版本或参数（Python 版用 Leiden，本就是 8 个）。想调数量就改 `RES`：
+差异来自版本或参数（Python 版用 Leiden，**实测为 8 个**）。想调数量就改 `RES`：
 `RES=0.6 Rscript scripts/03_cluster.R` 或 `RES=0.6 python scripts/03_cluster.py`。
 
 **Q：`FindAllMarkers` 很慢？**
@@ -342,12 +379,13 @@ R 侧把两张散点图合成一张（`02_qc_scatter.png`），Python 侧分开�
 
 ## 9. 再往下可以扩展什么
 
-按性价比排序，都是这套数据上能直接做的：
+**已完成**：用 Scanpy 复现同一套分析。R/Seurat 与 Python/Scanpy 是两套独立实现，
+`05_verify.py` 会逐项对账（见第 4.2 节）——这一步本身就是本项目的主体。
+
+下面按性价比排序，都是这套数据上还能直接做的：
 
 1. **SingleR / CellTypist 自动注释**，和自己的人工注释对账（交叉验证思路）
 2. **DoubletFinder** 做双细胞检测，看有多少细胞被判为 doublet
 3. **换一套多样本数据**（如 IFN-β 刺激 vs 对照，Kang et al. 2018），
    加 Harmony 整合 + 组间差异表达 + 通路富集——这一步才真正产出"生物学结论"
-4. ~~用 Scanpy 复现同样的图和结论~~ —— **本项目已完成**：R/Seurat 与 Python/Scanpy
-   是两套独立实现，第 5 步会逐项对账（见第 4.2 节）。下一步可以换成
-   **另一种归一化方法**（SCTransform）再比一次，用同样的对账框架验证。
+4. **换一种归一化方法**（SCTransform）再比一次，用同样的对账框架验证
