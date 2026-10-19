@@ -3,8 +3,9 @@
 我从 ENA 下载原始测序数据，独立走完
 **质控 → 比对 → 排序去重 → 变异检测 → 过滤** 全流程。
 
-> SnpEff 的变异注释脚本已写好（步骤 5），但**这一步没有实际运行**；
-> 第 9 节的组装与基因内容注释是另一条独立的分析路径。
+> SnpEff 的变异注释（步骤 5）需要先配置 `SNPEFF_DB`（一个几百 MB 的注释库）。
+> `config/ecoli.env` 里 `SNPEFF_DB=` 是**留空**的，所以脚本会打印启用说明后自动跳过（`exit 0`），
+> 仓库里因此没有 `vcf/<run>.ann.vcf`。第 9 节的组装与基因内容注释是另一条独立分析路径。
 
 和另一个 RNA-seq 项目（暂未纳入本仓库）互补：
 那条线练的是表达量分析，这条线练的是 **BWA + samtools + bcftools** 这套 DNA 变异检测工具链。
@@ -176,8 +177,10 @@ RNA-seq 的重复主要来自高表达基因，是真实信号，去重反而有
 图中"21.43% 未比对"的成因见 [第 8.5 节](#85-两个异常的归因2026-10-修订均已定位)。
 
 入库内容：`scripts/`、`config/`、`samples/`、`envs/`、`README.md`、
-`vcf/*.vcf.gz`（约 2 MB）、`vcf/*.stats.txt`、`qc/` 下的报告与 TSV。
-BAM、fastq、参考基因组及其索引、`.rds`/`.h5ad` 都在 `.gitignore` 里。
+`vcf/*.vcf.gz`（约 2 MB）、`vcf/*.stats.txt`、`qc/` 下的报告与汇总图，
+以及 `results/gene_content/`（毒力 / 耐药 / 质粒注释表，约 68 KB）。
+
+不入库：BAM、fastq、参考基因组及其索引、`assembly/`（SPAdes 中间产物）—— 均在 `.gitignore` 里。
 
 ---
 
