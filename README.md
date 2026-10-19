@@ -6,7 +6,7 @@
 我自己写脚本并用ai辅助检查走完完整分析链，并对结果做了逐项核对——不只是"跑出图了"。
 全部脚本都能在笔记本上重跑，不依赖服务器。
 
-**技术栈**：BWA · samtools · bcftools · SnpEff · Seurat (R) · Scanpy (Python) · conda · bash / WSL
+**技术栈**：BWA · samtools · bcftools · SnpEff（可选，本次未运行）· Seurat (R) · Scanpy (Python) · conda · bash / WSL
 
 ## English Summary
 
@@ -14,7 +14,8 @@ Two self-contained exercises, each a numbered script chain plus a one-command `r
 
 - **scRNA-seq** (`scRNAseq/01-pbmc3k/`) — 10x PBMC 3k implemented **twice and independently**
   in Seurat (R) and Scanpy (Python), including a cross-implementation reconciliation step:
-  2,700 → 2,638 cells, 13,714 genes, 9 clusters, identical median QC metrics on both sides.
+  2,700 → 2,638 cells, 13,714 genes, identical median QC metrics on both sides.
+  Clustering differs by one (9 clusters in Seurat / 8 in Scanpy) — see the S01 README.
 - **DNA-seq variant calling** (`DNAseq/01-ecoli-ERR10016950/`) —
   FASTQ → fastp/FastQC/MultiQC → BWA-MEM → samtools fixmate/markdup → bcftools → filtered VCF.
   Real *E. coli* WGS, ~123×, 20–30 min on a laptop. Ships a documented debugging log
@@ -40,7 +41,7 @@ raw data and intermediate files excluded via `.gitignore` and re-downloaded on d
 | 编号 | 练习 | 方向 | 工具链 | 数据 | 耗时 |
 |---|---|---|---|---|---|
 | S01 | [pbmc3k](scRNAseq/01-pbmc3k/README.md) | 单细胞转录组 | Seurat (R) · Scanpy (Python) | 10x PBMC 3k，2700 细胞 | 5–15 分钟 |
-| D01 | [ecoli-ERR10016950](DNAseq/01-ecoli-ERR10016950/README.md) | 重测序变异检测 | BWA · samtools · bcftools · SnpEff | 临床分离株 WGS，189 万 pairs，123× | 20–30 分钟 |
+| D01 | [ecoli-ERR10016950](DNAseq/01-ecoli-ERR10016950/README.md) | 重测序变异检测 | BWA · samtools · bcftools（SnpEff 未运行） | 临床分离株 WGS，189 万 pairs，123× | 20–30 分钟 |
 
 > 另一个 bulk RNA-seq 项目（表达定量）暂未纳入本仓库。
 
@@ -48,7 +49,7 @@ raw data and intermediate files excluded via `.gitignore` and re-downloaded on d
 
 | 编号 | 定位 | 能说明什么 | 边界 |
 |---|---|---|---|
-| **S01** | **可量化验证** | 与 Seurat 官方教程逐项对账（2700 → 2638 细胞、13714 基因、9 个 cluster），并有 R/Python 双实现交叉验证 | 仅覆盖 PBMC 3k 这一套数据，未涉及批次校正与双细胞检测 |
+| **S01** | **可量化验证** | 与 Seurat 官方教程逐项对账（2700 → 2638 细胞、13714 基因、9 个 cluster），并有 R/Python 双实现交叉验证 | 双实现只在细胞数 / 基因数 / 中位 QC 上完全一致；**聚类结果 9 vs 8、marker 表并不相同**（见 S01 README 第 10 节）。仅覆盖 PBMC 3k 一套数据，未涉及批次校正与双细胞检测 |
 | **D01** | **流程连通性验证 + 基因内容分析** | 从原始 reads 完整跑通 6 步，定位并修复两个真实 bug；组装后做了毒力/耐药基因注释，并查出样本中混入 *K. pneumoniae* | 该样本 `strain` 元数据为空、无配套完整基因组、**无基准真值**，不宣称变异检出准确率。归因见其 README 第 8–9 节 |
 
 ## 目录约定
@@ -82,9 +83,9 @@ raw data and intermediate files excluded via `.gitignore` and re-downloaded on d
 ## 共同的设计原则
 
 1. **不跳步**：DNA 侧从测序 reads 开始（比对、去重、call 变异），单细胞侧从 count matrix 开始（CellRanger 的比对环节由 10x 官方完成，这也是真实工作流的起点）。
-2. **脚本可分段执行**：编号脚本 `01_…` → `06_…`，既能单步跑、也能 `bash scripts/run_all.sh` 一键跑完。
+2. **脚本可分段执行**：每个练习都是编号脚本（S01 是 `01_` → `05_`，D01 是 `01_` → `08_`，含可选的诊断/绘图步骤），既能单步跑、也能 `bash scripts/run_all.sh` 一键跑完。
 3. **结果要和可核对的东西比对**，而不是"看起来对"：
-   - `S01 pbmc3k` 与 Seurat 官方教程逐项比对（2700 → 2638 细胞、13714 基因、9 个 cluster），并与 Scanpy 版交叉验证。
+   - `S01 pbmc3k` 与 Seurat 官方教程逐项比对（2700 → 2638 细胞、13714 基因、9 个 cluster；Python 版为 8 个），并与 Scanpy 版交叉验证。
    - `D01 ecoli` 做到"实测值与文档记录一致 + 异常有归因"；因无基准真值，不宣称变异检出准确率。见上方定位表。
 4. **双实现交叉验证**（`S01`）：同一份数据用 R/Seurat 和 Python/Scanpy 各跑一遍，两份独立实现互相核对——一个逻辑错误很难在两种实现里同时出现。
 5. **边界写清楚**：每个练习的 README 都有「已知限制」一节，说明这套流程没做什么、哪些结论不能下。
@@ -121,7 +122,7 @@ CONFIG=config/ecoli.env bash scripts/run_all.sh   # 20–30 分钟
 （AI 编码助手）协助。它实际参与的部分包括：排查 `bcftools --ploidy` 缺省值导致的假阳性、
 定位 abricate 输出列随版本变更的问题、以及识别组装结果里混入的另一株菌。
 
-数据来源、分析路线和最终结论由我确认；README 中的每个数字都能从仓库内的脚本和结果表复现。
+数据来源、分析路线和最终结论由我确认；README 中的数字均来自实际运行，**除已明确标注为"历史数字"的几处外**（如 D01 第 8.2 节 ploidy=2 时期的统计），都可以从仓库内的脚本和结果表复现。
 
 ## License
 
