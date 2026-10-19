@@ -1,0 +1,18 @@
+# 统一换行符为 LF。
+#
+# 本仓库的脚本都在 Linux / WSL 下执行。若工作区被转成 CRLF，
+# bash 会报 "\r: command not found" 这类难以定位的错误。
+# 这里强制仓库内与工作区都用 LF，避免依赖各人本地的 core.autocrlf 设置。
+* text=auto eol=lf
+
+# 二进制文件不做换行转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gz binary
+*.zip binary
+*.bam binary
+*.bai binary
+*.rds binary
+*.h5ad binary
+*.pdf binary

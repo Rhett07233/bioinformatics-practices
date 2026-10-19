@@ -1,0 +1,35 @@
+# 单细胞 RNA-seq 分析环境（Scanpy / Python）
+#
+# 用法：
+#   conda env create -f envs/scanpy.yaml
+#   conda activate scanpy
+#
+# 和 envs/scrna.yaml（R / Seurat）是两套独立环境：
+# 同一份数据，两种语言各跑一遍，结果互相对账。
+name: scanpy
+
+channels:
+  - conda-forge
+  - bioconda
+
+dependencies:
+  - python>=3.10
+  - scanpy
+  - anndata
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - matplotlib
+  - seaborn
+
+  # Leiden 聚类依赖（sc.tl.leiden 需要）
+  - leidenalg
+  - igraph
+  # 邻居图 / 数值后端
+  - numba
+  - python-igraph
+
+  # 读取 10x 矩阵 / 写出 h5ad
+  - h5py
+  - pytables

@@ -1,0 +1,6 @@
+"cell_type","markers","found","n_found","n_total"
+"T 细胞","CD3D, CD3E, IL7R","CD3D, CD3E, IL7R",3,3
+"B 细胞","MS4A1, CD79A","MS4A1, CD79A",2,2
+"NK 细胞","NKG7, GNLY","NKG7, GNLY",2,2
+"单核细胞","LYZ, CD14","LYZ, CD14",2,2
+"血小板","PPBP","PPBP",1,1

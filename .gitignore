@@ -1,0 +1,25 @@
+# OS / 编辑器
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+
+# 大数据兜底（各项目目录下还有更细的规则）
+*.bam
+*.bai
+*.fastq
+*.fq
+*.h5ad
+*.rds

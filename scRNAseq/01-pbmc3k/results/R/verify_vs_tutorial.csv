@@ -1,0 +1,4 @@
+"item","expected","actual","match"
+"QC 过滤后细胞数","2638","2638",TRUE
+"基因数","13714","13714",TRUE
+"cluster 数（dims=1:10, res=0.5）","9","9",TRUE

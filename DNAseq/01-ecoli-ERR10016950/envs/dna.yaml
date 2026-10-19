@@ -1,0 +1,20 @@
+name: dna
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  # --- 下载 / 质控 ---
+  - aria2
+  - wget
+  - fastp
+  - fastqc
+  - multiqc
+  # --- 比对 / 处理 ---
+  - bwa
+  - samtools
+  - htslib
+  - bedtools
+  - seqtk
+  # --- 变异检测 / 注释 ---
+  - bcftools
+  - snpeff

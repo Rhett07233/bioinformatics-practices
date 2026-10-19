@@ -1,0 +1,4 @@
+item,expected,actual,match
+QC 过滤后细胞数,2638,2638,True
+基因数,13714,13714,True
+cluster 数（res=0.5）,9,8,False

@@ -1,0 +1,3 @@
+"step","cells","genes","median_nCount","median_nFeature","median_percent_mt"
+"过滤前",2700,13714,2196,816,2.03
+"过滤后",2638,13714,2213,819,2.01

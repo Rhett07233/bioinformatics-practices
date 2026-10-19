@@ -1,0 +1,22 @@
+# 数据与中间产物：不提交
+data/
+results/R/*.rds
+results/python/*.h5ad
+
+# 未过滤的全量 marker 表（每个 cluster × 全部基因，约 11 MB）。
+# 交付物是过滤后的 cluster_markers.csv，这份中间表不必入库。
+results/python/cluster_markers_all.csv
+
+# R 运行痕迹
+.Rhistory
+.RData
+.Rproj.user/
+
+# Python 运行痕迹
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# 系统文件
+.DS_Store
+Thumbs.db

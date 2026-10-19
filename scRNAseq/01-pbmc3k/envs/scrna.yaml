@@ -1,0 +1,30 @@
+# 单细胞 RNA-seq 分析环境（Seurat）
+#
+# 用法：
+#   conda env create -f envs/scrna.yaml
+#   conda activate scrna
+#
+# 说明：
+#   - r-seurat 从 conda-forge 装的是预编译包，不用本地编译，比 install.packages() 快很多。
+#   - conda-forge 上 Seurat 的最新版通常比 CRAN 慢一截（本文写作时为 5.0.x，CRAN 已到 5.6.0）。
+#     这对 PBMC 3k 这套标准流程没有影响，官方教程的结果可以复现。
+#   - 想要更新的 Seurat，可以只装 r-base，再用 Posit 的 Linux 二进制仓库装 R 包
+#     （https://packagemanager.posit.co），装的是预编译二进制，速度也很快。
+name: scrna
+
+channels:
+  - conda-forge
+  - bioconda
+
+dependencies:
+  - r-base>=4.3
+  - r-seurat>=5.0
+  - r-seuratobject
+  - r-tidyverse
+  - r-patchwork
+  - r-ggrepel
+  - r-matrix
+  - r-data.table
+
+  # 下载工具（01_download.sh 用）
+  - wget
