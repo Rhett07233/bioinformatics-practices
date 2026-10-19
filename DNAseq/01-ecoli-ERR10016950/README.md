@@ -280,7 +280,7 @@ samtools view bam/ERR10016950.markdup.bam | head -200000 | cut -f6 \
 ```
 
 推算：277 万条 mapped reads × 1.0% ≈ 2.78 万条跨 indel 的比对；按约 90× 覆盖度，
-每个 indel 位点被约 90 条 reads 覆盖 → **约 300 个 indel 位点**，与实测 251 个吻合。
+每个 indel 位点被约 90 条 reads 覆盖 → **约 300 个 indel 位点**，与实测 251 个相差不大。
 
 **这条证据能证明什么、不能证明什么（重要，别说过头）：**
 
@@ -458,11 +458,19 @@ CONFIG=config/ecoli.env bash scripts/08_gene_content.sh
 | 保留（E. coli） | 3952 | 5.72 Mb | **51.0%** |
 | 丢弃（低覆盖度，主要为 *K. pneumoniae*） | 469 | 5.11 Mb | **57.2%** |
 
-> **物种已确认**：把最长的污染 contig（`NODE_1`，242 kb）切 5 kb 提交 NCBI BLAST，
-> 前 100 条命中**全部是 *Klebsiella pneumoniae***——一致性 **99.96%**、Query Cover **100%**、E 值 **0.0**。
+> **物种已确认（NCBI BLAST）**
+>
+> | 项目 | 值 |
+> |---|---|
+> | 查询序列 | `NODE_1` 的前 5,000 bp（该 contig 全长 242,614 bp、覆盖度 3.96×、GC 58.0%） |
+> | 程序 / 数据库 | megablast / `core_nt` |
+> | 结果 | **前 100 条命中全部为 *Klebsiella pneumoniae*** |
+> | 一致性 / Query Cover / E 值 | **99.96% / 100% / 0.0** |
+> | 查询日期 | 2026-10-19（RID `DCC185VW014`，NCBI 仅保留约 24 小时） |
 >
 > *K. pneumoniae* 基因组约 5.4 Mb、GC 57.5%，与上面测到的 4.6 Mb / 57.3% 吻合。
 > 之前几条旁证（`IncFIB(K)` 复制子、CARD 里的 `Klebsiella_pneumoniae_acrA` / `OmpK37`）由此闭环。
+> **复现方式**：从 `assembly/spades/contigs.fasta` 取 `NODE_1` 前 5 kb，用 megablast 比对 `core_nt` 即可。
 
 ### 9.3 耐药基因：检出 MDR 相关基因，但归属存疑
 
