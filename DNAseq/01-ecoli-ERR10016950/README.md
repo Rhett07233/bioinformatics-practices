@@ -150,31 +150,31 @@ RNA-seq 的重复主要来自高表达基因，是真实信号，去重反而有
 ```
 01-ecoli-ERR10016950/
 ├── README.md
-├── config/          ecoli.env   ← 换数据集只改这里
-├── samples/         样本表（含 ENA 直链）
+├── config/              ecoli.env —— 换数据集只改这里
+├── samples/             样本表（含 ENA 直链）
 ├── envs/dna.yaml
-├── scripts/         lib.sh + 01~08 + run_all.sh
-├── fastq/ clean/ bam/ ref/     中间文件（.gitignore 已排除）
-├── assembly/        SPAdes 组装结果（.gitignore 已排除）
-├── qc/              MultiQC 报告 + summary/（汇总图）+ refcheck/（参考筛选，我未运行）
-├── results/gene_content/  毒力 / 耐药 / 质粒注释表（入库）
-└── vcf/             raw / norm / filtered VCF + stats
+├── scripts/             lib.sh + 01~08 + run_all.sh
+├── fastq/ clean/ bam/ ref/    中间文件（未入库）
+├── assembly/            SPAdes 组装结果（未入库）
+├── qc/                  MultiQC / FastQC / fastp 报告 + summary/ 汇总图 + refcheck/（我未运行）
+├── results/gene_content/       毒力 / 耐药 / 质粒注释表
+└── vcf/                 raw / norm / filtered VCF + bcftools stats
 ```
 
-> **生成汇总图**（只读已有结果，不重跑流程）：
->
-> ```bash
-> conda activate dna             # 本环境的 matplotlib 需先装上（见下）
-> python scripts/07_summary_plot.py
-> ```
->
-> 如果报 `ModuleNotFoundError: matplotlib`，说明环境是在加这条依赖之前建的，补装即可：
->
-> ```bash
-> conda env update -f envs/dna.yaml
-> ```
->
-> 输出 `qc/summary/<run>.summary.png`：reads 过滤前后、比对率、变异数、Q30 四联图。
+汇总图是另一个只读脚本生成的——它不重跑流程，只读已有结果：
+
+```bash
+conda activate dna             # 本环境的 matplotlib 需先装上（见下）
+python scripts/07_summary_plot.py
+```
+
+如果报 `ModuleNotFoundError: matplotlib`，说明环境是在加这条依赖之前建的，补装即可：
+
+```bash
+conda env update -f envs/dna.yaml
+```
+
+输出 `qc/summary/<run>.summary.png`：reads 过滤前后、比对率、变异数、Q30 四联图。
 
 ### 结果概览
 
@@ -184,11 +184,19 @@ RNA-seq 的重复主要来自高表达基因，是真实信号，去重反而有
 变异数（21,137 SNP / 251 indel，对数轴）、Q30 碱基比例（85.6% → 88.2%）。
 图中"21.43% 未比对"的成因见 [第 8.5 节](#85-两个异常的归因)。
 
-入库内容：`scripts/`、`config/`、`samples/`、`envs/`、`README.md`、
-`vcf/*.vcf.gz`（约 2 MB）、`vcf/*.stats.txt`、`qc/` 下的报告与汇总图，
-以及 `results/gene_content/`（毒力 / 耐药 / 质粒注释表，约 68 KB）。
+**我入库的东西**：`scripts/`、`config/`、`samples/`、`envs/`、`README.md`，
+以及分析产物中的三块——`vcf/`（VCF + 索引 + bcftools stats，约 1.9 MB）、
+`qc/`（MultiQC / FastQC / fastp 报告 + 汇总图，约 4.0 MB）、
+`results/gene_content/`（约 54 KB）。整个目录入库后约 6 MB。
 
-不入库：BAM、fastq、参考基因组及其索引、`assembly/`（SPAdes 中间产物）—— 均在 `.gitignore` 里。
+**我没入库的东西**：
+
+| 内容 | 磁盘占用 | 原因 |
+|---|---|---|
+| `fastq/`、`clean/` | 255 + 242 MB | 原始与质控后的 reads，跑 01、02 步就能重新拿到 |
+| `bam/` | 261 MB | 比对结果，单个 BAM 就超过 GitHub 的单文件上限 |
+| `ref/` | 41 MB | 参考基因组 + bwa 索引，脚本检测到缺失会自动下载 |
+| `assembly/` | 184 MB | SPAdes 的中间产物，`K77/` 一个子目录就占 78 MB |
 
 ---
 
