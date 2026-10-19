@@ -1,0 +1,8 @@
+#FILE	SEQUENCE	START	END	GENE	COVERAGE	COVERAGE_MAP	GAPS	%COVERAGE	%IDENTITY	DATABASE	ACCESSION
+assembly_full/spades/contigs.filtered.fasta	NODE_214_length_8995_cov_27.487778	3415	3974	IncFIB(K)_1_Kpn3	1-560/560	===============	0/0	100.00	98.93	plasmidfinder	JN233704
+assembly_full/spades/contigs.filtered.fasta	NODE_305_length_6431_cov_26.706327	5298	5435	IncN_1	377-514/514	...........====	0/0	26.85	98.55	plasmidfinder	AY046276
+assembly_full/spades/contigs.filtered.fasta	NODE_397_length_4876_cov_38.773078	1136	1433	IncFIC(FII)_1	1-299/499	========/=.....	1/1	59.72	91.97	plasmidfinder	AP001918
+assembly_full/spades/contigs.filtered.fasta	NODE_457_length_4153_cov_26.395976	1278	1528	IncR_1	1-251/251	===============	0/0	100.00	100.00	plasmidfinder	DQ449578
+assembly_full/spades/contigs.filtered.fasta	NODE_505_length_3650_cov_31.137140	2285	2414	ColRNAI_1	1-130/130	========/======	2/2	99.23	83.97	plasmidfinder	DQ298019
+assembly_full/spades/contigs.filtered.fasta	NODE_524_length_3378_cov_57.122993	1112	1242	ColRNAI_1	1-130/130	========/======	1/1	100.00	85.50	plasmidfinder	DQ298019
+assembly_full/spades/contigs.filtered.fasta	NODE_585_length_2864_cov_40.037675	83	213	ColRNAI_1	1-130/130	========/======	1/1	100.00	84.73	plasmidfinder	DQ298019

@@ -18,9 +18,13 @@
 #   SUB_PAIRS=1000000 SPADES_MEM=8 CONFIG=config/ecoli.env bash scripts/08_gene_content.sh
 source "$(dirname "$0")/lib.sh"
 
-ASM_DIR="assembly"
-OUT="results/gene_content"
-SUB_PAIRS="${SUB_PAIRS:-800000}"     # 组装 50x 左右足够，且快很多
+# TAG 后缀让不同深度的结果并存，默认空 = 覆盖原结果
+#   TAG=_full SUB_PAIRS=1900000 ...   → assembly_full/ + results/gene_content_full/
+TAG="${TAG:-}"
+ASM_DIR="assembly${TAG}"
+OUT="results/gene_content${TAG}"
+SUB_PAIRS="${SUB_PAIRS:-800000}"     # 80 万对 ≈ 52x（总深度）；E. coli 实际约 42x，因样本混有约 20% 其他物种
+MIN_COV="${MIN_COV:-4}"              # contig 覆盖度下限；深度变了这个值也要跟着变
 SPADES_MEM="${SPADES_MEM:-8}"        # GB
 mkdir -p "$ASM_DIR" "$OUT" logs
 
@@ -41,8 +45,8 @@ run="$(awk 'NR==2{print $1; exit}' "$SAMPLES")"
 
 # ---------- 8.1 抽样子集 ----------
 # 组装用不到 245x；降到约 50x 可把 SPAdes 耗时压到几分钟。
-sub1="logs/${run}.sub_R1.fq.gz"
-sub2="logs/${run}.sub_R2.fq.gz"
+sub1="logs/${run}.sub${SUB_PAIRS}${TAG}_R1.fq.gz"
+sub2="logs/${run}.sub${SUB_PAIRS}${TAG}_R2.fq.gz"
 if [ ! -s "$sub1" ] || [ ! -s "$sub2" ]; then
   echo "== 抽样 $SUB_PAIRS 对 reads（约 50x）=="
   seqtk sample -s 42 "clean/${run}_R1.clean.fq.gz" "$SUB_PAIRS" | gzip > "$sub1"
@@ -70,8 +74,9 @@ echo ">>> 组装完成：$n_contig 条 contig，总长 $((asm_len/1000000)) Mb"
 # 本数据集的组装呈双峰：
 #   覆盖度 2–4×、GC 57.3%、约 5 Mb  —— 另一个物种（疑似 Klebsiella 类）
 #   覆盖度 8–40×、GC 50–52%、约 5.8 Mb —— E. coli 主基因组 + accessory
-# 两峰在 4× 处干净分开，所以按 MIN_COV 过滤，只保留 E. coli 部分再注释。
-MIN_COV="${MIN_COV:-4}"
+# 两峰之间取 MIN_COV 过滤，只保留 E. coli 部分再注释。
+# 注意阈值随深度变：52x 时两峰在 2-4x / 12-20x，取 4 即可；
+# 深度翻倍后两个峰都上移，阈值也要相应上调（见 README 9.2 的直方图）。
 filtered="$ASM_DIR/spades/contigs.filtered.fasta"
 if [ ! -s "$filtered" ]; then
   awk -v minc="$MIN_COV" '

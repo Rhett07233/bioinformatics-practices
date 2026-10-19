@@ -8,6 +8,8 @@ fastq/
 ref/
 logs/
 assembly/
+# 用 TAG 跑多套组装时目录会是 assembly_full/、assembly_xxx/ 等，一并排除
+assembly*/
 
 # 数据类文件的兜底规则（压缩的测序数据、参考序列、比对文件）
 *.bam
